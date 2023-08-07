@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>自動販売機</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+	<style>
+		input[type=radio] {
+			border: 0px;
+			width: 1em;
+			height: 1em;
+		}
+
+		.btn-close {
+			padding: 0.375rem 0.75rem;
+			color: #212529;
+			font-size: 1.5rem;
+			line-height: 1;
+			background-color: transparent;
+			border: 0;
+		}
+
+		.col-2 {
+			margin-right: -15px;
+		}
+
+		.input-left {
+			text-align: left;
+		}
+	</style>
+</head>
+
+<body>
+
+	<header th:replace="fragments/nav :: header">
+	</header>
+
+	<section　layout:fragment="content">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-md-8" style="width: 800px;height: 500px;min-width: 400px; margin: 100px auto">
+					<div class="card p-4">
+						<div class="card-body">
+							<div class="form-group col-12 col-md-6 mb-3">
+								<label for="amount" class="mb-1"> キャッシュ（（JYP） </label>
+								<input onkeyup="check()" type="number" class="form-control" id="amount" name="amount" required />
+							</div>
+							<div>
+								<label for="drink" class="mb-3">飲み物</label>
+								<div>
+									<div class="row">
+										<div class="col-xs-12 col-md-4 col-sm-12" th:each="item: ${items}">
+											<div class="d-grid gap-2">
+												<div class="row m-1 mb-2">
+													<div class="col-4 col-md-2 text-center p-2"
+														style="border:1px solid #aea7a7;border-top-left-radius: 5px;border-bottom-left-radius: 5px;background-color:#dbdbdb;">
+														<div class="col-12">
+															<input class="bg-danger input-left" type="radio"
+																th:onchange="check()" th:name="${item.items}"
+																th:value="${item.value}">
+														</div>
+													</div>
+													<div id="coca" class="col-8 col-md-10 text-start p-2"
+														th:text="${item.name}"
+														style="border:1px solid #aea7a7;border-top-right-radius: 5px;border-bottom-right-radius: 5px;background-color:#dbdbdb;">
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<button id="btn" type="button" onclick="requestFunction()" style="border-radius: 10px"
+						class="btn btn-primary mt-4 col-12" data-bs-toggle="modal" data-bs-target="#myModal">
+						購入
+					</button>
+				</div>
+			</div>
+		</div>
+	</section>
+	<footer th:replace="fragments/footer :: footer">
+
+	</footer>
+	<div class="modal fade" id="myModal" aria-labelledby="purchaseModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<div class="row ml-2 col-12">
+						<div class="col-1"></div>
+						<div class="col-10 text-center">
+							<h5 class="modal-title" id="purchaseModalLabel">
+								ありがとう！
+							</h5>
+						</div>
+						<div class="col-1 pl-3">
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Modal body -->
+				<div class="modal-body my-3" id="change" style="text-align: center;">お釣り： JPY</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+		integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+		crossorigin="anonymous"></script>
+	<script>
+
+		function checkPrice(item) {
+			const val = item.value.split(",");
+			const itemPrice = val[1];
+			var amount = document.getElementById('amount').value;
+			if (parseInt(amount) < parseInt(itemPrice)) {
+				var btnElement = document.getElementById('btn');
+				btnElement.removeAttribute("data-bs-target");
+				btnElement.removeAttribute("onclick");
+				btnElement.removeAttribute("data-bs-toggle");
+			}
+		}
+
+		function check() {
+			var ele = document.getElementsByTagName('input');
+			var amount = document.getElementById('amount').value;
+			let count = 0;
+			let total = 0;
+			for (var i = 0; i < ele.length; i++) {
+				if (ele[i].type.toLowerCase() == 'radio') {
+					if (ele[i].checked) {
+						const myArray = ele[i].value.split(",");
+						total += parseInt(myArray[1]);
+						count++;
+					}
+				}
+			}
+			if (count > 0) {
+				if (parseInt(amount) < total) {
+					var btnElement = document.getElementById('btn');
+					btnElement.removeAttribute("data-bs-target");
+					btnElement.removeAttribute("onclick");
+					btnElement.removeAttribute("data-bs-toggle");
+				} else {
+					var btnElement = document.getElementById('btn');
+					btnElement.setAttribute("data-bs-target","#myModal");
+					btnElement.setAttribute("onclick","requestFunction()");
+					btnElement.setAttribute("data-bs-toggle","modal");
+				}
+			}
+
+		}
+
+		function requestFunction() {
+			var ele = document.getElementsByTagName('input');
+			var amount = document.getElementById('amount').value;
+
+
+			let hasItemSelected = false;
+			let array = [];
+			let count = 0;
+			for (var i = 0; i < ele.length; i++) {
+				if (ele[i].type.toLowerCase() == 'radio') {
+					if (ele[i].checked) {
+						hasItemSelected = true;
+						ele[i].checked = false;
+						const myArray = ele[i].value.split(",");
+						let data = {name: myArray[0], price: myArray[1], amount}
+						array.push(data);
+						count++;
+					}
+				}
+			}
+			if (count == 0 && amount == '') {
+				document.getElementById('change').innerHTML = `You need to input money and can chose item`;
+			} else {
+				let sendData = {items: array};
+				fetch("/api", {
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/json'
+					},
+					method: "POST",
+					body: JSON.stringify(array)
+				})
+					.then(response => response.json()
+					).then(response => {
+						if (response.statusCode == 200) {
+							document.getElementById('change').innerHTML = `お釣り： ${response.apiData.change} JPY`;
+						} else if (response.statusCode == 204) {
+							document.getElementById('change').innerHTML = `${response.message} `;
+						} else if (response.statusCode == 205) {
+							document.getElementById('change').innerHTML = `${response.message}`;
+						} else if (response.statusCode == 206) {
+							document.getElementById('change').innerHTML = `${response.message}`;
+						}
+					}).catch((error) => {
+						console.log(error.message);
+
+					});
+			}
+
+
+
+		}
+	</script>
+</body>
+
+</html>
